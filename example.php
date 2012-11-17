@@ -2,7 +2,7 @@
 
 include('path/to/MySqlAdapter');  //or use an autoloader
 
-$mysql = new MySqlAdapter('localhost', 'mydb', 'root', 'password');
+$mysql = new MySqlAdapter('localhost', 'mydb', 'root', 'password');  //instatiate the object
 
 //create an insert command using named parameters
 $mysql->set_insert_command('INSERT INTO users (email, password) VALUES (:email, :pass)');

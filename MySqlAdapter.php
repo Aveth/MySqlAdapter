@@ -93,6 +93,17 @@ class MySqlAdapter {
     public function get_last_insert_id() {
         return $this->_connection->lastInsertId();
     }
+
+
+    /**
+    * Get the current PDO connection
+    *
+    * @access public
+    * @return PDO The current PDO connection
+    */
+    public function get_connection() {
+        return $this->_db;
+    }
     
     /**
      * Connects to the MySql database using PDO
@@ -112,12 +123,11 @@ class MySqlAdapter {
                 $this->_connection = $db_handle;
                 return true;
             } else {
-                echo '<p><b>ERROR:</b> Could not connect to MySQL database.</p>';
-                return false;
+                throw new Exception('<p><b>ERROR:</b> Could not connect to MySQL database.</p>');
             }
         
         } catch (PDOException $e) {
-            return true;
+            throw new Exception('<p><b>PDO ERROR:</b> '.$e->getMessage());
         }
     }
     
@@ -190,38 +200,30 @@ class MySqlAdapter {
      */
     public function execute($sql, $params, $is_query = false) {
         if (isset($params) && !is_array($params)) $params = array($params);
-        
-        try {
-            
-            $cmd = $this->_connection->prepare($sql);  //prepare statement
-        
-            if (isset($params)) {
-                if ((bool)count(array_filter(array_keys($params), 'is_string'))) {  //check if array is assoc or index
-                    
-                    foreach ($params as $field => $value) {
-                        $cmd->bindValue($field, $value);  //bind values for assoc array of parameters
-                    }
 
-                    $cmd->execute();  //execute query
+        $cmd = $this->_connection->prepare($sql);  //prepare statement
+    
+        if (isset($params)) {
+            if ((bool)count(array_filter(array_keys($params), 'is_string'))) {  //check if array is assoc or index
                 
-                } else {
-                    $cmd->execute($params);  //execute query with index array of parameters
+                foreach ($params as $field => $value) {
+                    $cmd->bindValue($field, $value);  //bind values for assoc array of parameters
                 }
-            } else {
+
                 $cmd->execute();  //execute query
-            }
-
-            if (  $cmd->errorCode() === '00000' ) {
-                return ($is_query ? $cmd->fetchAll(PDO::FETCH_ASSOC) : true);
+            
             } else {
-                $error = $cmd->errorInfo();
-                echo '<p><b>ERROR:</b> MySQL returned with an error: '.$error[2].'.</p>';
-                return false;
+                $cmd->execute($params);  //execute query with index array of parameters
             }
+        } else {
+            $cmd->execute();  //execute query
+        }
 
-        } catch (Exception $e) {
-            echo '<p><b>ERROR:</b> There was an error executing a MySQL query: '.$e->getMessage().'</p>';
-            return false;  //FALSE on error
+        if (  $cmd->errorCode() === '00000' ) {
+            return ($is_query ? $cmd->fetchAll(PDO::FETCH_ASSOC) : true);
+        } else {
+            $error = $cmd->errorInfo();
+            throw new Exception('<p><b>ERROR:</b> MySQL returned with an error: '.$error[2].'.</p>');
         }
         
     }
