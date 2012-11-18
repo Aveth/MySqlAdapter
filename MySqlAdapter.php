@@ -123,11 +123,11 @@ class MySqlAdapter {
                 $this->_connection = $db_handle;
                 return true;
             } else {
-                throw new Exception('<p><b>ERROR:</b> Could not connect to MySQL database.</p>');
+                throw new Exception('PDO error - Could not connect to MySQL database.');
             }
         
         } catch (PDOException $e) {
-            throw new Exception('<p><b>PDO ERROR:</b> '.$e->getMessage());
+            throw new Exception('PDO error - '.$e->getMessage());
         }
     }
     
@@ -223,7 +223,7 @@ class MySqlAdapter {
             return ($is_query ? $cmd->fetchAll(PDO::FETCH_ASSOC) : true);
         } else {
             $error = $cmd->errorInfo();
-            throw new Exception('<p><b>ERROR:</b> MySQL returned with an error: '.$error[2].'.</p>');
+            throw new Exception('PDO error - '.$error[2]);
         }
         
     }
