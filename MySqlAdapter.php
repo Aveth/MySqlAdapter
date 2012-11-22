@@ -8,12 +8,12 @@
 */
 
 class MySqlAdapter {
-    private $_select;
+    private $_select; 
     private $_insert;
     private $_delete;
     private $_update;
     private $_connection;
-    private $_login;
+    private $_login = array();
     
     /**
      * Creates a MySqlAdapter to store SQL commands and execute them using PDO
@@ -109,7 +109,7 @@ class MySqlAdapter {
      * Connects to the MySql database using PDO
      *
      * @access private
-     * @return bool FALSE if connection fails 
+     * @return bool TRUE if connection is successful
      */
     private function _connect() {
         $login = $this->_login;
@@ -194,9 +194,9 @@ class MySqlAdapter {
      * @access public
      * @param string $sql SQL statement to be executed
      * @param array $params Array of parameters to match parameters in query
-     * @param bool $isQuery TRUE for select commands
-     * @return mixed Executing a select command will return an associative array of results or FALSE on error.
-     * All other commands will return TRUE on success or FALSE on error.
+     * @param bool $is_query TRUE for select commands
+     * @return mixed Executing a select command will return an associative array of results
+     * All other commands will return TRUE on success
      */
     public function execute($sql, $params, $is_query = false) {
         if (isset($params) && !is_array($params)) $params = array($params);
